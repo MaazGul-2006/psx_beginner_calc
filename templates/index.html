@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSX Beginner Profit & Tax Calculator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-green: #10b981;
+            --accent-red: #f43f5e;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .calc-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            padding: 28px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .header-icon {
+            background: rgba(16, 185, 129, 0.15);
+            padding: 12px;
+            border-radius: 12px;
+            color: var(--accent-green);
+            display: flex;
+        }
+
+        .header h1 {
+            font-size: 1.35rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 2px 0 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 14px;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-green);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toggle-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-green);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .results-box {
+            margin-top: 24px;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            display: none;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-row.total {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 12px;
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .val-green { color: var(--accent-green); font-weight: 700; font-size: 1.25rem; }
+        .val-red { color: var(--accent-red); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="calc-card">
+    <div class="header">
+        <div class="header-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        </div>
+        <div>
+            <h1>PSX Trade Calculator</h1>
+            <p>Simple stock return & tax estimator</p>
+        </div>
+    </div>
+
+    <form id="calcForm">
+        <div class="input-group">
+            <label>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
+                Quantity (Number of Shares)
+            </label>
+            <input type="number" id="shares" class="input-field" value="500" min="1" required>
+        </div>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    Buy Price (Rs.)
+                </label>
+                <input type="number" step="0.01" id="buy" class="input-field" value="100" required>
+            </div>
+            <div class="input-group">
+                <label>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+                    Sell Price (Rs.)
+                </label>
+                <input type="number" step="0.01" id="sell" class="input-field" value="125" required>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>FBR Active Taxpayer Status (ATL)</label>
+            <div class="toggle-group">
+                <div class="toggle-btn active" id="filerYes" onclick="toggleFiler(true)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+                    Active Filer (15%)
+                </div>
+                <div class="toggle-btn" id="filerNo" onclick="toggleFiler(false)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    Non-Filer (30%)
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Calculate Net Return
+        </button>
+    </form>
+
+    <div class="results-box" id="resultsBox">
+        <div class="result-row">
+            <span style="color: var(--text-muted);">Total Capital Outlay</span>
+            <b id="resInvested">Rs. 0</b>
+        </div>
+        <div class="result-row">
+            <span style="color: var(--text-muted);">Brokerage Fees (~0.30%)</span>
+            <b id="resFees" class="val-red">Rs. 0</b>
+        </div>
+        <div class="result-row">
+            <span style="color: var(--text-muted);">Estimated CGT Tax</span>
+            <b id="resTax" class="val-red">Rs. 0</b>
+        </div>
+        <div class="result-row total">
+            <span style="font-weight: 600;">Take-Home Net Profit</span>
+            <span id="resProfit" class="val-green">Rs. 0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isFiler = true;
+
+    function toggleFiler(status) {
+        isFiler = status;
+        document.getElementById('filerYes').classList.toggle('active', status);
+        document.getElementById('filerNo').classList.toggle('active', !status);
+    }
+
+    document.getElementById('calcForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const payload = {
+            shares: document.getElementById('shares').value,
+            buy: document.getElementById('buy').value,
+            sell: document.getElementById('sell').value,
+            filer: isFiler ? 1 : 0
+        };
+
+        const res = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        document.getElementById('resInvested').innerText = 'Rs. ' + data.invested.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('resFees').innerText = '- Rs. ' + data.total_fees.toFixed(2);
+        document.getElementById('resTax').innerText = '- Rs. ' + data.cgt_tax.toFixed(2);
+        document.getElementById('resProfit').innerText = 'Rs. ' + data.net_profit.toFixed(2);
+        
+        document.getElementById('resultsBox').style.display = 'block';
+    };
+</script>
+
+</body>
+</html>
