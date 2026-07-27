@@ -5,114 +5,337 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSX Beginner Calculator</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; line-height: 1.6; }
-        .card { border: 1px solid #ccc; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #f9f9f9; }
-        .result { background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 10px; margin-top: 10px; }
-        .error { background-color: #ffebee; color: #c62828; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
-        label { display: inline-block; width: 180px; margin-bottom: 8px; }
-        input, select { padding: 6px; margin-bottom: 8px; width: 160px; }
-        button { padding: 8px 16px; background-color: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0b7dda; }
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #e9ecef;
+            --result-bg: #e7f1ff;
+            --result-border: #0d6efd;
+            --error-bg: #f8d7da;
+            --error-text: #842029;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: #1a252f;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .alert-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #f5c2c7;
+            font-weight: 500;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 18px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #495057;
+        }
+
+        .form-group input, 
+        .form-group select {
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background-color: #fff;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+        }
+
+        button.btn-submit {
+            width: 100%;
+            padding: 11px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        button.btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            background-color: var(--result-bg);
+            border-left: 4px solid var(--result-border);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .result-box h4 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #084298;
+            margin-bottom: 10px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.92rem;
+            padding: 4px 0;
+            border-bottom: 1px dashed #cfe2ff;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #084298;
+            padding-top: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <h1>📈 PSX Beginner Calculator</h1>
+    <div class="container">
+        <header>
+            <h1>📈 PSX Beginner Calculator</h1>
+            <p>Smart tools for Pakistan Stock Exchange investors</p>
+        </header>
 
-    {% if error %}
-        <div class="error"><strong>Error:</strong> {{ error }}</div>
-    {% endif %}
-
-    <!-- 1. Average Down Calculator -->
-    <div class="card">
-        <h2>1. Average Down Calculator</h2>
-        <form action="/average-down" method="POST">
-            <label>1st Buy Shares:</label> <input type="number" step="any" name="b1_shares" required><br>
-            <label>1st Buy Price (Rs):</label> <input type="number" step="any" name="b1_price" required><br>
-            <label>2nd Buy Shares:</label> <input type="number" step="any" name="b2_shares" required><br>
-            <label>2nd Buy Price (Rs):</label> <input type="number" step="any" name="b2_price" required><br>
-            <button type="submit">Calculate Average</button>
-        </form>
-
-        {% if avg_result %}
-            <div class="result">
-                <h4>Result:</h4>
-                <p>Total Shares: <strong>{{ avg_result.total_shares }}</strong></p>
-                <p>Total Cost: <strong>Rs. {{ avg_result.total_cost }}</strong></p>
-                <p>New Average Price: <strong>Rs. {{ avg_result.avg_price }}</strong></p>
+        {% if error %}
+            <div class="alert-error">
+                ⚠️ {{ error }}
             </div>
         {% endif %}
-    </div>
 
-    <!-- 2. Break-Even Price Finder -->
-    <div class="card">
-        <h2>2. Break-Even Price Finder</h2>
-        <form action="/break-even" method="POST">
-            <label>Buy Price (Rs):</label> <input type="number" step="any" name="buy_price" required><br>
-            <label>Quantity of Shares:</label> <input type="number" step="any" name="shares" required><br>
-            <button type="submit">Find Break-Even</button>
-        </form>
+        <div class="grid-container">
 
-        {% if breakeven_result %}
-            <div class="result">
-                <h4>Result:</h4>
-                <p>Total Invested (Inc. Fees): <strong>Rs. {{ breakeven_result.total_invested }}</strong></p>
-                <p>Break-Even Target Price: <strong>Rs. {{ breakeven_result.break_even_price }}</strong></p>
-                <p>Estimated Total Round-Trip Fees: <strong>Rs. {{ breakeven_result.total_fees }}</strong></p>
+            <!-- 1. Average Down Calculator -->
+            <div class="card">
+                <h2>📊 Average Down Calculator</h2>
+                <form action="/average-down" method="POST">
+                    <div class="form-group">
+                        <label>1st Buy Shares</label>
+                        <input type="number" step="any" name="b1_shares" placeholder="e.g. 500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>1st Buy Price (Rs)</label>
+                        <input type="number" step="any" name="b1_price" placeholder="e.g. 120" required>
+                    </div>
+                    <div class="form-group">
+                        <label>2nd Buy Shares</label>
+                        <input type="number" step="any" name="b2_shares" placeholder="e.g. 500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>2nd Buy Price (Rs)</label>
+                        <input type="number" step="any" name="b2_price" placeholder="e.g. 100" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Calculate Average</button>
+                </form>
+
+                {% if avg_result %}
+                    <div class="result-box">
+                        <h4>Calculation Breakdown</h4>
+                        <div class="result-row"><span>Total Shares:</span> <span>{{ avg_result.total_shares }}</span></div>
+                        <div class="result-row"><span>Total Investment:</span> <span>Rs. {{ avg_result.total_cost }}</span></div>
+                        <div class="result-row"><span>New Avg Price:</span> <span>Rs. {{ avg_result.avg_price }}</span></div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
-    </div>
 
-    <!-- 3. Dividend & Yield Calculator -->
-    <div class="card">
-        <h2>3. Dividend & Yield Calculator</h2>
-        <form action="/dividend" method="POST">
-            <label>Shares Held:</label> <input type="number" step="any" name="shares" required><br>
-            <label>DPS (Dividend/Share):</label> <input type="number" step="any" name="dps" required><br>
-            <label>Market Price (Rs):</label> <input type="number" step="any" name="market_price" required><br>
-            <label>Tax Status:</label>
-            <select name="tax_status">
-                <option value="filer">Filer (15% WHT)</option>
-                <option value="non_filer">Non-Filer (30% WHT)</option>
-            </select><br>
-            <button type="submit">Calculate Dividend</button>
-        </form>
+            <!-- 2. Break-Even Price Finder -->
+            <div class="card">
+                <h2>🎯 Break-Even Price Finder</h2>
+                <form action="/break-even" method="POST">
+                    <div class="form-group">
+                        <label>Buy Price (Rs)</label>
+                        <input type="number" step="any" name="buy_price" placeholder="e.g. 50" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity of Shares</label>
+                        <input type="number" step="any" name="shares" placeholder="e.g. 1000" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Find Break-Even</button>
+                </form>
 
-        {% if div_result %}
-            <div class="result">
-                <h4>Result:</h4>
-                <p>Gross Dividend: <strong>Rs. {{ div_result.gross_dividend }}</strong></p>
-                <p>Tax Deducted: <strong>Rs. {{ div_result.tax_deducted }}</strong></p>
-                <p>Net Payout: <strong>Rs. {{ div_result.net_dividend }}</strong></p>
-                <p>Dividend Yield: <strong>{{ div_result.yield }}%</strong></p>
+                {% if breakeven_result %}
+                    <div class="result-box">
+                        <h4>Calculation Breakdown</h4>
+                        <div class="result-row"><span>Total Invested (Inc. Fees):</span> <span>Rs. {{ breakeven_result.total_invested }}</span></div>
+                        <div class="result-row"><span>Round-Trip Brokerage Fees:</span> <span>Rs. {{ breakeven_result.total_fees }}</span></div>
+                        <div class="result-row"><span>Target Sell Price:</span> <span>Rs. {{ breakeven_result.break_even_price }}</span></div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
-    </div>
 
-    <!-- 4. Capital Gains & Net Profit Calculator -->
-    <div class="card">
-        <h2>4. CGT & Net Profit Calculator</h2>
-        <form action="/cgt" method="POST">
-            <label>Buy Price (Rs):</label> <input type="number" step="any" name="buy_price" required><br>
-            <label>Sell Price (Rs):</label> <input type="number" step="any" name="sell_price" required><br>
-            <label>Shares:</label> <input type="number" step="any" name="shares" required><br>
-            <label>Tax Status:</label>
-            <select name="tax_status">
-                <option value="filer">Filer (15% CGT)</option>
-                <option value="non_filer">Non-Filer (25% CGT)</option>
-            </select><br>
-            <button type="submit">Calculate Profit</button>
-        </form>
+            <!-- 3. Dividend & Yield Calculator -->
+            <div class="card">
+                <h2>💰 Dividend & Yield Calculator</h2>
+                <form action="/dividend" method="POST">
+                    <div class="form-group">
+                        <label>Shares Held</label>
+                        <input type="number" step="any" name="shares" placeholder="e.g. 2000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dividend Per Share (DPS in Rs)</label>
+                        <input type="number" step="any" name="dps" placeholder="e.g. 4.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Market Price (Rs)</label>
+                        <input type="number" step="any" name="market_price" placeholder="e.g. 45" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Status</label>
+                        <select name="tax_status">
+                            <option value="filer">Filer (15% WHT)</option>
+                            <option value="non_filer">Non-Filer (30% WHT)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Calculate Dividend</button>
+                </form>
 
-        {% if cgt_result %}
-            <div class="result">
-                <h4>Result:</h4>
-                <p>Gross Profit: <strong>Rs. {{ cgt_result.gross_profit }}</strong></p>
-                <p>Brokerage & SST: <strong>Rs. {{ cgt_result.brokerage_fees }}</strong></p>
-                <p>Capital Gains Tax (CGT): <strong>Rs. {{ cgt_result.cgt_tax }}</strong></p>
-                <p>Net Realized Profit: <strong>Rs. {{ cgt_result.net_profit }}</strong></p>
+                {% if div_result %}
+                    <div class="result-box">
+                        <h4>Calculation Breakdown</h4>
+                        <div class="result-row"><span>Gross Dividend:</span> <span>Rs. {{ div_result.gross_dividend }}</span></div>
+                        <div class="result-row"><span>Withholding Tax:</span> <span>Rs. {{ div_result.tax_deducted }}</span></div>
+                        <div class="result-row"><span>Dividend Yield:</span> <span>{{ div_result.yield }}%</span></div>
+                        <div class="result-row"><span>Net Payout:</span> <span>Rs. {{ div_result.net_dividend }}</span></div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+
+            <!-- 4. Capital Gains & Net Profit Calculator -->
+            <div class="card">
+                <h2>⚖️ CGT & Net Profit Calculator</h2>
+                <form action="/cgt" method="POST">
+                    <div class="form-group">
+                        <label>Buy Price (Rs)</label>
+                        <input type="number" step="any" name="buy_price" placeholder="e.g. 100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sell Price (Rs)</label>
+                        <input type="number" step="any" name="sell_price" placeholder="e.g. 125" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Shares</label>
+                        <input type="number" step="any" name="shares" placeholder="e.g. 500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Status</label>
+                        <select name="tax_status">
+                            <option value="filer">Filer (15% CGT)</option>
+                            <option value="non_filer">Non-Filer (25% CGT)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Calculate Net Profit</button>
+                </form>
+
+                {% if cgt_result %}
+                    <div class="result-box">
+                        <h4>Calculation Breakdown</h4>
+                        <div class="result-row"><span>Gross Profit:</span> <span>Rs. {{ cgt_result.gross_profit }}</span></div>
+                        <div class="result-row"><span>Brokerage & SST Fees:</span> <span>Rs. {{ cgt_result.brokerage_fees }}</span></div>
+                        <div class="result-row"><span>Capital Gains Tax:</span> <span>Rs. {{ cgt_result.cgt_tax }}</span></div>
+                        <div class="result-row"><span>Net Take-Home Profit:</span> <span>Rs. {{ cgt_result.net_profit }}</span></div>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
     </div>
 
 </body>
