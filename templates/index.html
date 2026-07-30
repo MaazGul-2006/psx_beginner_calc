@@ -6,23 +6,40 @@
     <title>PSX Beginner Calculator</title>
     <style>
         :root {
-            --primary-color: #0d6efd;
-            --primary-hover: #0b5ed7;
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
             --text-color: #212529;
+            --subtext-color: #6c757d;
             --border-color: #e9ecef;
+            --input-border: #ced4da;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
             --result-bg: #e7f1ff;
             --result-border: #0d6efd;
-            --error-bg: #f8d7da;
-            --error-text: #842029;
+            --result-text: #084298;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --subtext-color: #a0a0a0;
+            --border-color: #2d2d2d;
+            --input-border: #444444;
+            --primary-color: #3d8bfd;
+            --primary-hover: #0d6efd;
+            --result-bg: #1a2738;
+            --result-border: #3d8bfd;
+            --result-text: #8bb9fe;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         body {
@@ -34,62 +51,92 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
 
         header h1 {
-            font-size: 2.2rem;
-            color: #1a252f;
-            margin-bottom: 8px;
+            font-size: 1.8rem;
         }
 
         header p {
-            color: #6c757d;
-            font-size: 1rem;
+            color: var(--subtext-color);
+            font-size: 0.95rem;
         }
 
-        .alert-error {
-            background-color: var(--error-bg);
-            color: var(--error-text);
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border: 1px solid #f5c2c7;
-            font-weight: 500;
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-            gap: 25px;
+        .theme-btn:hover {
+            background-color: var(--border-color);
         }
 
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 2px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--subtext-color);
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        /* Card Form */
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
             padding: 24px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: none;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        .card.active {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
         }
 
         .card h2 {
             font-size: 1.25rem;
             margin-bottom: 18px;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
             border-bottom: 2px solid var(--bg-color);
             padding-bottom: 10px;
         }
@@ -104,17 +151,17 @@
             font-size: 0.88rem;
             font-weight: 600;
             margin-bottom: 6px;
-            color: #495057;
+            color: var(--text-color);
         }
 
         .form-group input, 
         .form-group select {
             padding: 10px 12px;
             font-size: 0.95rem;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--input-border);
             border-radius: 6px;
-            background-color: #fff;
-            transition: border-color 0.15s ease-in-out;
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
 
         .form-group input:focus, 
@@ -135,27 +182,32 @@
             border-radius: 6px;
             cursor: pointer;
             margin-top: 10px;
-            transition: background-color 0.2s ease;
         }
 
         button.btn-submit:hover {
             background-color: var(--primary-hover);
         }
 
+        /* Results Box */
         .result-box {
             margin-top: 20px;
             background-color: var(--result-bg);
             border-left: 4px solid var(--result-border);
             padding: 16px;
             border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .result-box.visible {
+            display: block;
             animation: fadeIn 0.3s ease-in-out;
         }
 
         .result-box h4 {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #084298;
+            color: var(--result-text);
             margin-bottom: 10px;
         }
 
@@ -163,15 +215,15 @@
             display: flex;
             justify-content: space-between;
             font-size: 0.92rem;
-            padding: 4px 0;
-            border-bottom: 1px dashed #cfe2ff;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-color);
         }
 
         .result-row:last-child {
             border-bottom: none;
             font-weight: bold;
             font-size: 1rem;
-            color: #084298;
+            color: var(--result-text);
             padding-top: 8px;
         }
 
@@ -179,164 +231,227 @@
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        @media (max-width: 480px) {
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>📈 PSX Beginner Calculator</h1>
-            <p>Smart tools for Pakistan Stock Exchange investors</p>
+            <div>
+                <h1>📈 PSX Beginner Calculator</h1>
+                <p>Smart tools for Pakistan Stock Exchange investors</p>
+            </div>
+            <button class="theme-btn" id="themeToggle">🌙 Dark Mode</button>
         </header>
 
-        {% if error %}
-            <div class="alert-error">
-                ⚠️ {{ error }}
-            </div>
-        {% endif %}
-
-        <div class="grid-container">
-
-            <!-- 1. Average Down Calculator -->
-            <div class="card">
-                <h2>📊 Average Down Calculator</h2>
-                <form action="/average-down" method="POST">
-                    <div class="form-group">
-                        <label>1st Buy Shares</label>
-                        <input type="number" step="any" name="b1_shares" placeholder="e.g. 500" required>
-                    </div>
-                    <div class="form-group">
-                        <label>1st Buy Price (Rs)</label>
-                        <input type="number" step="any" name="b1_price" placeholder="e.g. 120" required>
-                    </div>
-                    <div class="form-group">
-                        <label>2nd Buy Shares</label>
-                        <input type="number" step="any" name="b2_shares" placeholder="e.g. 500" required>
-                    </div>
-                    <div class="form-group">
-                        <label>2nd Buy Price (Rs)</label>
-                        <input type="number" step="any" name="b2_price" placeholder="e.g. 100" required>
-                    </div>
-                    <button type="submit" class="btn-submit">Calculate Average</button>
-                </form>
-
-                {% if avg_result %}
-                    <div class="result-box">
-                        <h4>Calculation Breakdown</h4>
-                        <div class="result-row"><span>Total Shares:</span> <span>{{ avg_result.total_shares }}</span></div>
-                        <div class="result-row"><span>Total Investment:</span> <span>Rs. {{ avg_result.total_cost }}</span></div>
-                        <div class="result-row"><span>New Avg Price:</span> <span>Rs. {{ avg_result.avg_price }}</span></div>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- 2. Break-Even Price Finder -->
-            <div class="card">
-                <h2>🎯 Break-Even Price Finder</h2>
-                <form action="/break-even" method="POST">
-                    <div class="form-group">
-                        <label>Buy Price (Rs)</label>
-                        <input type="number" step="any" name="buy_price" placeholder="e.g. 50" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Quantity of Shares</label>
-                        <input type="number" step="any" name="shares" placeholder="e.g. 1000" required>
-                    </div>
-                    <button type="submit" class="btn-submit">Find Break-Even</button>
-                </form>
-
-                {% if breakeven_result %}
-                    <div class="result-box">
-                        <h4>Calculation Breakdown</h4>
-                        <div class="result-row"><span>Total Invested (Inc. Fees):</span> <span>Rs. {{ breakeven_result.total_invested }}</span></div>
-                        <div class="result-row"><span>Round-Trip Brokerage Fees:</span> <span>Rs. {{ breakeven_result.total_fees }}</span></div>
-                        <div class="result-row"><span>Target Sell Price:</span> <span>Rs. {{ breakeven_result.break_even_price }}</span></div>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- 3. Dividend & Yield Calculator -->
-            <div class="card">
-                <h2>💰 Dividend & Yield Calculator</h2>
-                <form action="/dividend" method="POST">
-                    <div class="form-group">
-                        <label>Shares Held</label>
-                        <input type="number" step="any" name="shares" placeholder="e.g. 2000" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Dividend Per Share (DPS in Rs)</label>
-                        <input type="number" step="any" name="dps" placeholder="e.g. 4.5" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Current Market Price (Rs)</label>
-                        <input type="number" step="any" name="market_price" placeholder="e.g. 45" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Tax Status</label>
-                        <select name="tax_status">
-                            <option value="filer">Filer (15% WHT)</option>
-                            <option value="non_filer">Non-Filer (30% WHT)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit">Calculate Dividend</button>
-                </form>
-
-                {% if div_result %}
-                    <div class="result-box">
-                        <h4>Calculation Breakdown</h4>
-                        <div class="result-row"><span>Gross Dividend:</span> <span>Rs. {{ div_result.gross_dividend }}</span></div>
-                        <div class="result-row"><span>Withholding Tax:</span> <span>Rs. {{ div_result.tax_deducted }}</span></div>
-                        <div class="result-row"><span>Dividend Yield:</span> <span>{{ div_result.yield }}%</span></div>
-                        <div class="result-row"><span>Net Payout:</span> <span>Rs. {{ div_result.net_dividend }}</span></div>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- 4. Capital Gains & Net Profit Calculator -->
-            <div class="card">
-                <h2>⚖️ CGT & Net Profit Calculator</h2>
-                <form action="/cgt" method="POST">
-                    <div class="form-group">
-                        <label>Buy Price (Rs)</label>
-                        <input type="number" step="any" name="buy_price" placeholder="e.g. 100" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Sell Price (Rs)</label>
-                        <input type="number" step="any" name="sell_price" placeholder="e.g. 125" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Shares</label>
-                        <input type="number" step="any" name="shares" placeholder="e.g. 500" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Tax Status</label>
-                        <select name="tax_status">
-                            <option value="filer">Filer (15% CGT)</option>
-                            <option value="non_filer">Non-Filer (25% CGT)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit">Calculate Net Profit</button>
-                </form>
-
-                {% if cgt_result %}
-                    <div class="result-box">
-                        <h4>Calculation Breakdown</h4>
-                        <div class="result-row"><span>Gross Profit:</span> <span>Rs. {{ cgt_result.gross_profit }}</span></div>
-                        <div class="result-row"><span>Brokerage & SST Fees:</span> <span>Rs. {{ cgt_result.brokerage_fees }}</span></div>
-                        <div class="result-row"><span>Capital Gains Tax:</span> <span>Rs. {{ cgt_result.cgt_tax }}</span></div>
-                        <div class="result-row"><span>Net Take-Home Profit:</span> <span>Rs. {{ cgt_result.net_profit }}</span></div>
-                    </div>
-                {% endif %}
-            </div>
-
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('avg-down')">Average Down</button>
+            <button class="tab-btn" onclick="switchTab('break-even')">Break-Even</button>
+            <button class="tab-btn" onclick="switchTab('dividend')">Dividend</button>
+            <button class="tab-btn" onclick="switchTab('cgt')">CGT & Profit</button>
         </div>
+
+        <!-- 1. Average Down Calculator -->
+        <div id="tab-avg-down" class="card active">
+            <h2>📊 Average Down Calculator</h2>
+            <form onsubmit="handleCalculate(event, '/average-down', 'res-avg-down')">
+                <div class="form-group">
+                    <label>1st Buy Shares</label>
+                    <input type="number" step="any" name="b1_shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>1st Buy Price (Rs)</label>
+                    <input type="number" step="any" name="b1_price" placeholder="e.g. 120" required>
+                </div>
+                <div class="form-group">
+                    <label>2nd Buy Shares</label>
+                    <input type="number" step="any" name="b2_shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>2nd Buy Price (Rs)</label>
+                    <input type="number" step="any" name="b2_price" placeholder="e.g. 100" required>
+                </div>
+                <button type="submit" class="btn-submit">Calculate Average</button>
+            </form>
+
+            <div id="res-avg-down" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Total Shares:</span> <span id="avg-total-shares">-</span></div>
+                <div class="result-row"><span>Total Investment:</span> <span id="avg-total-cost">-</span></div>
+                <div class="result-row"><span>New Avg Price:</span> <span id="avg-price">-</span></div>
+            </div>
+        </div>
+
+        <!-- 2. Break-Even Price Finder -->
+        <div id="tab-break-even" class="card">
+            <h2>🎯 Break-Even Price Finder</h2>
+            <form onsubmit="handleCalculate(event, '/break-even', 'res-break-even')">
+                <div class="form-group">
+                    <label>Buy Price (Rs)</label>
+                    <input type="number" step="any" name="buy_price" placeholder="e.g. 50" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity of Shares</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 1000" required>
+                </div>
+                <button type="submit" class="btn-submit">Find Break-Even</button>
+            </form>
+
+            <div id="res-break-even" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Total Invested (Inc. Fees):</span> <span id="be-total-invested">-</span></div>
+                <div class="result-row"><span>Round-Trip Fees:</span> <span id="be-total-fees">-</span></div>
+                <div class="result-row"><span>Target Sell Price:</span> <span id="be-price">-</span></div>
+            </div>
+        </div>
+
+        <!-- 3. Dividend & Yield Calculator -->
+        <div id="tab-dividend" class="card">
+            <h2>💰 Dividend & Yield Calculator</h2>
+            <form onsubmit="handleCalculate(event, '/dividend', 'res-dividend')">
+                <div class="form-group">
+                    <label>Shares Held</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 2000" required>
+                </div>
+                <div class="form-group">
+                    <label>Dividend Per Share (DPS in Rs)</label>
+                    <input type="number" step="any" name="dps" placeholder="e.g. 4.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Current Market Price (Rs)</label>
+                    <input type="number" step="any" name="market_price" placeholder="e.g. 45" required>
+                </div>
+                <div class="form-group">
+                    <label>Tax Status</label>
+                    <select name="tax_status">
+                        <option value="filer">Filer (15% WHT)</option>
+                        <option value="non_filer">Non-Filer (30% WHT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Calculate Dividend</button>
+            </form>
+
+            <div id="res-dividend" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Gross Dividend:</span> <span id="div-gross">-</span></div>
+                <div class="result-row"><span>Withholding Tax:</span> <span id="div-tax">-</span></div>
+                <div class="result-row"><span>Dividend Yield:</span> <span id="div-yield">-</span></div>
+                <div class="result-row"><span>Net Payout:</span> <span id="div-net">-</span></div>
+            </div>
+        </div>
+
+        <!-- 4. Capital Gains & Net Profit Calculator -->
+        <div id="tab-cgt" class="card">
+            <h2>⚖️ CGT & Net Profit Calculator</h2>
+            <form onsubmit="handleCalculate(event, '/cgt', 'res-cgt')">
+                <div class="form-group">
+                    <label>Buy Price (Rs)</label>
+                    <input type="number" step="any" name="buy_price" placeholder="e.g. 100" required>
+                </div>
+                <div class="form-group">
+                    <label>Sell Price (Rs)</label>
+                    <input type="number" step="any" name="sell_price" placeholder="e.g. 125" required>
+                </div>
+                <div class="form-group">
+                    <label>Number of Shares</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>Tax Status</label>
+                    <select name="tax_status">
+                        <option value="filer">Filer (15% CGT)</option>
+                        <option value="non_filer">Non-Filer (25% CGT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Calculate Net Profit</button>
+            </form>
+
+            <div id="res-cgt" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Gross Profit:</span> <span id="cgt-gross">-</span></div>
+                <div class="result-row"><span>Brokerage & SST:</span> <span id="cgt-fees">-</span></div>
+                <div class="result-row"><span>Capital Gains Tax:</span> <span id="cgt-tax">-</span></div>
+                <div class="result-row"><span>Net Realized Profit:</span> <span id="cgt-net">-</span></div>
+            </div>
+        </div>
+
     </div>
 
+    <script>
+        // 1. Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // 2. Dark Mode Toggle Logic
+        const themeBtn = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('psx_theme') || 'light';
+        
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.textContent = '☀️ Light Mode';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.textContent = '🌙 Dark Mode';
+                localStorage.setItem('psx_theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️ Light Mode';
+                localStorage.setItem('psx_theme', 'dark');
+            }
+        });
+
+        // 3. AJAX Form Handling (No Page Reload)
+        async function handleCalculate(event, endpoint, resultBoxId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                const data = await response.json();
+                
+                // Map API response to UI elements
+                if (data.avg_result) {
+                    document.getElementById('avg-total-shares').textContent = data.avg_result.total_shares;
+                    document.getElementById('avg-total-cost').textContent = `Rs. ${data.avg_result.total_cost}`;
+                    document.getElementById('avg-price').textContent = `Rs. ${data.avg_result.avg_price}`;
+                } else if (data.breakeven_result) {
+                    document.getElementById('be-total-invested').textContent = `Rs. ${data.breakeven_result.total_invested}`;
+                    document.getElementById('be-total-fees').textContent = `Rs. ${data.breakeven_result.total_fees}`;
+                    document.getElementById('be-price').textContent = `Rs. ${data.breakeven_result.break_even_price}`;
+                } else if (data.div_result) {
+                    document.getElementById('div-gross').textContent = `Rs. ${data.div_result.gross_dividend}`;
+                    document.getElementById('div-tax').textContent = `Rs. ${data.div_result.tax_deducted}`;
+                    document.getElementById('div-yield').textContent = `${data.div_result.yield}%`;
+                    document.getElementById('div-net').textContent = `Rs. ${data.div_result.net_dividend}`;
+                } else if (data.cgt_result) {
+                    document.getElementById('cgt-gross').textContent = `Rs. ${data.cgt_result.gross_profit}`;
+                    document.getElementById('cgt-fees').textContent = `Rs. ${data.cgt_result.brokerage_fees}`;
+                    document.getElementById('cgt-tax').textContent = `Rs. ${data.cgt_result.cgt_tax}`;
+                    document.getElementById('cgt-net').textContent = `Rs. ${data.cgt_result.net_profit}`;
+                }
+
+                document.getElementById(resultBoxId).classList.add('visible');
+
+            } catch (err) {
+                console.error('Calculation Error:', err);
+            }
+        }
+    </script>
 </body>
 </html>

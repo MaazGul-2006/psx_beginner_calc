@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
@@ -27,13 +27,15 @@ def average_down():
         total_cost = (b1_shares * b1_price) + (b2_shares * b2_price)
         avg_price = total_cost / total_shares if total_shares > 0 else 0
 
-        return render_template('index.html', avg_result={
-            'total_shares': total_shares,
-            'total_cost': round(total_cost, 2),
-            'avg_price': round(avg_price, 2)
+        return jsonify({
+            'avg_result': {
+                'total_shares': total_shares,
+                'total_cost': round(total_cost, 2),
+                'avg_price': round(avg_price, 2)
+            }
         })
     except Exception:
-        return render_template('index.html', error="Invalid input in Average Down Calculator")
+        return jsonify({'error': 'Invalid input in Average Down Calculator'}), 400
 
 # 2. Break-Even Price Finder
 @app.route('/break-even', methods=['POST'])
@@ -42,31 +44,31 @@ def break_even():
         buy_price = float(request.form.get('buy_price', 0))
         shares = float(request.form.get('shares', 0))
         
-        # Total cost including buying commission
         buy_value = buy_price * shares
         buy_comm = buy_value * BROKERAGE_RATE
         buy_tax = buy_comm * SST_RATE
         total_invested = buy_value + buy_comm + buy_tax
 
-        # Selling break-even price per share considering selling commission
         effective_commission_multiplier = 1 - (BROKERAGE_RATE * (1 + SST_RATE))
         break_even_total = total_invested / effective_commission_multiplier
         break_even_price = break_even_total / shares if shares > 0 else 0
 
-        return render_template('index.html', breakeven_result={
-            'total_invested': round(total_invested, 2),
-            'break_even_price': round(break_even_price, 2),
-            'total_fees': round(break_even_total - buy_value, 2)
+        return jsonify({
+            'breakeven_result': {
+                'total_invested': round(total_invested, 2),
+                'break_even_price': round(break_even_price, 2),
+                'total_fees': round(break_even_total - buy_value, 2)
+            }
         })
     except Exception:
-        return render_template('index.html', error="Invalid input in Break-Even Calculator")
+        return jsonify({'error': 'Invalid input in Break-Even Calculator'}), 400
 
 # 3. Dividend & Yield Calculator
 @app.route('/dividend', methods=['POST'])
 def dividend():
     try:
         shares = float(request.form.get('shares', 0))
-        dps = float(request.form.get('dps', 0)) # Dividend Per Share (Rs)
+        dps = float(request.form.get('dps', 0))
         market_price = float(request.form.get('market_price', 0))
         tax_status = request.form.get('tax_status', 'filer')
 
@@ -77,14 +79,16 @@ def dividend():
         
         dividend_yield = (dps / market_price * 100) if market_price > 0 else 0
 
-        return render_template('index.html', div_result={
-            'gross_dividend': round(gross_dividend, 2),
-            'tax_deducted': round(tax_deducted, 2),
-            'net_dividend': round(net_dividend, 2),
-            'yield': round(dividend_yield, 2)
+        return jsonify({
+            'div_result': {
+                'gross_dividend': round(gross_dividend, 2),
+                'tax_deducted': round(tax_deducted, 2),
+                'net_dividend': round(net_dividend, 2),
+                'yield': round(dividend_yield, 2)
+            }
         })
     except Exception:
-        return render_template('index.html', error="Invalid input in Dividend Calculator")
+        return jsonify({'error': 'Invalid input in Dividend Calculator'}), 400
 
 # 4. Capital Gains & Fees Calculator
 @app.route('/cgt', methods=['POST'])
@@ -98,7 +102,6 @@ def cgt():
         buy_value = buy_price * shares
         sell_value = sell_price * shares
 
-        # Brokerage fees (buy + sell side)
         total_comm = (buy_value + sell_value) * BROKERAGE_RATE
         total_sst = total_comm * SST_RATE
         total_brokerage_cost = total_comm + total_sst
@@ -111,14 +114,16 @@ def cgt():
 
         net_profit = gross_profit - total_brokerage_cost - cgt_tax
 
-        return render_template('index.html', cgt_result={
-            'gross_profit': round(gross_profit, 2),
-            'brokerage_fees': round(total_brokerage_cost, 2),
-            'cgt_tax': round(cgt_tax, 2),
-            'net_profit': round(net_profit, 2)
+        return jsonify({
+            'cgt_result': {
+                'gross_profit': round(gross_profit, 2),
+                'brokerage_fees': round(total_brokerage_cost, 2),
+                'cgt_tax': round(cgt_tax, 2),
+                'net_profit': round(net_profit, 2)
+            }
         })
     except Exception:
-        return render_template('index.html', error="Invalid input in CGT Calculator")
+        return jsonify({'error': 'Invalid input in CGT Calculator'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
