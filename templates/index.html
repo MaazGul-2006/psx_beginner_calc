@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PSX Beginner Calculator</title>
+    <title>PSX Beginner Calculator & Portfolio</title>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -17,6 +17,7 @@
             --result-bg: #e7f1ff;
             --result-border: #0d6efd;
             --result-text: #084298;
+            --danger-color: #dc3545;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
@@ -32,6 +33,7 @@
             --result-bg: #1a2738;
             --result-border: #3d8bfd;
             --result-text: #8bb9fe;
+            --danger-color: #f87171;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
@@ -101,8 +103,8 @@
         .tab-btn {
             background: none;
             border: none;
-            padding: 10px 16px;
-            font-size: 0.95rem;
+            padding: 10px 14px;
+            font-size: 0.9rem;
             font-weight: 600;
             color: var(--subtext-color);
             cursor: pointer;
@@ -227,6 +229,37 @@
             padding-top: 8px;
         }
 
+        /* Portfolio Table Styles */
+        .portfolio-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .portfolio-table th, .portfolio-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .portfolio-table th {
+            color: var(--subtext-color);
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-delete:hover {
+            text-decoration: underline;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
@@ -239,17 +272,18 @@
         <header>
             <div>
                 <h1>📈 PSX Beginner Calculator</h1>
-                <p>Smart tools for Pakistan Stock Exchange investors</p>
+                <p>Smart tools & Portfolio tracking for Pakistan investors</p>
             </div>
             <button class="theme-btn" id="themeToggle">🌙 Dark Mode</button>
         </header>
 
         <!-- Navigation Tabs -->
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('avg-down')">Average Down</button>
-            <button class="tab-btn" onclick="switchTab('break-even')">Break-Even</button>
-            <button class="tab-btn" onclick="switchTab('dividend')">Dividend</button>
-            <button class="tab-btn" onclick="switchTab('cgt')">CGT & Profit</button>
+            <button class="tab-btn active" onclick="switchTab('avg-down', event)">Average Down</button>
+            <button class="tab-btn" onclick="switchTab('break-even', event)">Break-Even</button>
+            <button class="tab-btn" onclick="switchTab('dividend', event)">Dividend</button>
+            <button class="tab-btn" onclick="switchTab('cgt', event)">CGT & Profit</button>
+            <button class="tab-btn" onclick="switchTab('portfolio', event)">💼 Portfolio</button>
         </div>
 
         <!-- 1. Average Down Calculator -->
@@ -287,6 +321,15 @@
         <div id="tab-break-even" class="card">
             <h2>🎯 Break-Even Price Finder</h2>
             <form onsubmit="handleCalculate(event, '/break-even', 'res-break-even')">
+                <div class="form-group">
+                    <label>Brokerage Platform</label>
+                    <select name="broker">
+                        <option value="standard">Standard PSX (0.15%)</option>
+                        <option value="ktrade">KTrade Online (0.12%)</option>
+                        <option value="akd">AKD Securities (0.15%)</option>
+                        <option value="arifhabib">Arif Habib Ltd (0.10%)</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>Buy Price (Rs)</label>
                     <input type="number" step="any" name="buy_price" placeholder="e.g. 50" required>
@@ -346,6 +389,15 @@
             <h2>⚖️ CGT & Net Profit Calculator</h2>
             <form onsubmit="handleCalculate(event, '/cgt', 'res-cgt')">
                 <div class="form-group">
+                    <label>Brokerage Platform</label>
+                    <select name="broker">
+                        <option value="standard">Standard PSX (0.15%)</option>
+                        <option value="ktrade">KTrade Online (0.12%)</option>
+                        <option value="akd">AKD Securities (0.15%)</option>
+                        <option value="arifhabib">Arif Habib Ltd (0.10%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Buy Price (Rs)</label>
                     <input type="number" step="any" name="buy_price" placeholder="e.g. 100" required>
                 </div>
@@ -376,19 +428,71 @@
             </div>
         </div>
 
+        <!-- 5. Portfolio Tracker Tab -->
+        <div id="tab-portfolio" class="card">
+            <h2>💼 Portfolio Transactions Tracker</h2>
+            <form onsubmit="handlePortfolioAdd(event)">
+                <div class="form-group">
+                    <label>Stock Symbol</label>
+                    <input type="text" name="symbol" placeholder="e.g. SYS, OGDC, LUCK" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>Quantity of Shares</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>Buy Price (Rs)</label>
+                    <input type="number" step="any" name="buy_price" placeholder="e.g. 145.50" required>
+                </div>
+                <div class="form-group">
+                    <label>Purchase Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <button type="submit" class="btn-submit">Add to Portfolio</button>
+            </form>
+
+            <div style="margin-top: 30px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Your Logged Holdings</h3>
+                <div style="overflow-x: auto;">
+                    <table class="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Shares</th>
+                                <th>Buy Price</th>
+                                <th>Total Cost</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portfolio-list-body">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="result-box visible" style="margin-top: 15px;">
+                    <div class="result-row"><span>Total Portfolio Invested:</span> <span id="portfolio-total-cost">Rs. 0.00</span></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // 1. Tab Switching Logic
-        function switchTab(tabId) {
+        // Tab Switching Logic
+        function switchTab(tabId, event) {
             document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             
             document.getElementById(`tab-${tabId}`).classList.add('active');
             event.currentTarget.classList.add('active');
+
+            if (tabId === 'portfolio') {
+                fetchPortfolio();
+            }
         }
 
-        // 2. Dark Mode Toggle Logic
+        // Dark Mode Toggle Logic
         const themeBtn = document.getElementById('themeToggle');
         const savedTheme = localStorage.getItem('psx_theme') || 'light';
         
@@ -410,7 +514,7 @@
             }
         });
 
-        // 3. AJAX Form Handling (No Page Reload)
+        // AJAX Calculator Form Handling
         async function handleCalculate(event, endpoint, resultBoxId) {
             event.preventDefault();
             const form = event.target;
@@ -425,7 +529,6 @@
 
                 const data = await response.json();
                 
-                // Map API response to UI elements
                 if (data.avg_result) {
                     document.getElementById('avg-total-shares').textContent = data.avg_result.total_shares;
                     document.getElementById('avg-total-cost').textContent = `Rs. ${data.avg_result.total_cost}`;
@@ -450,6 +553,66 @@
 
             } catch (err) {
                 console.error('Calculation Error:', err);
+            }
+        }
+
+        // Portfolio Management Functions
+        async function fetchPortfolio() {
+            try {
+                const response = await fetch('/portfolio/list');
+                const data = await response.json();
+                const tbody = document.getElementById('portfolio-list-body');
+                tbody.innerHTML = '';
+
+                if (data.items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--subtext-color);">No holdings logged yet.</td></tr>`;
+                } else {
+                    data.items.forEach(item => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${item.symbol}</strong></td>
+                                <td>${item.shares}</td>
+                                <td>Rs. ${item.buy_price}</td>
+                                <td>Rs. ${item.total_cost}</td>
+                                <td>${item.date}</td>
+                                <td><button class="btn-delete" onclick="deletePortfolioItem(${item.id})">Remove</button></td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('portfolio-total-cost').textContent = `Rs. ${data.total_portfolio_cost}`;
+            } catch (err) {
+                console.error('Error fetching portfolio:', err);
+            }
+        }
+
+        async function handlePortfolioAdd(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/portfolio/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    form.reset();
+                    fetchPortfolio();
+                }
+            } catch (err) {
+                console.error('Error adding portfolio item:', err);
+            }
+        }
+
+        async function deletePortfolioItem(id) {
+            try {
+                const response = await fetch(`/portfolio/delete/${id}`, { method: 'POST' });
+                if (response.ok) {
+                    fetchPortfolio();
+                }
+            } catch (err) {
+                console.error('Error deleting portfolio item:', err);
             }
         }
     </script>
