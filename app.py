@@ -1,42 +1,9 @@
-import sqlite3
-from flask import Flask, render_template, request, jsonify, g
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
-DATABASE = 'portfolio.db'
-
-# --- Database Setup ---
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        db.row_factory = sqlite3.Row
-    return db
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
-def init_db():
-    with app.app_context():
-        db = get_db()
-        db.execute('''
-            CREATE TABLE IF NOT EXISTS portfolio (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                shares REAL NOT NULL,
-                buy_price REAL NOT NULL,
-                date TEXT NOT NULL
-            )
-        ''')
-        db.commit()
-
-# Initialize the SQLite database on startup
-init_db()
 
 # --- Broker Fee Profiles ---
-# Rates based on standard PSX guidelines and online broker tariff schedules
+# Commission rates based on standard PSX guidelines & tariff schedules
 BROKER_PROFILES = {
     'standard': {'rate': 0.0015, 'min_fee': 0.03, 'name': 'Standard PSX (0.15%)'},
     'ktrade': {'rate': 0.0012, 'min_fee': 0.02, 'name': 'KTrade Online (0.12%)'},
@@ -85,7 +52,7 @@ def average_down():
     except Exception:
         return jsonify({'error': 'Invalid input'}), 400
 
-# 2. Break-Even Price Finder (Supports Custom Brokers)
+# 2. Break-Even Price Finder
 @app.route('/break-even', methods=['POST'])
 def break_even():
     try:
@@ -97,7 +64,6 @@ def break_even():
         buy_fees = calculate_broker_commission(buy_value, shares, broker_key)
         total_invested = buy_value + buy_fees
 
-        # Estimate round-trip requirement including sell-side commissions
         profile = BROKER_PROFILES.get(broker_key, BROKER_PROFILES['standard'])
         effective_rate = profile['rate'] * (1 + SST_RATE)
         break_even_total = total_invested / (1 - effective_rate)
@@ -139,7 +105,7 @@ def dividend():
     except Exception:
         return jsonify({'error': 'Invalid input'}), 400
 
-# 4. Capital Gains & Net Profit Calculator (Supports Custom Brokers)
+# 4. Capital Gains & Net Profit Calculator
 @app.route('/cgt', methods=['POST'])
 def cgt():
     try:
@@ -174,50 +140,6 @@ def cgt():
         })
     except Exception:
         return jsonify({'error': 'Invalid input'}), 400
-
-# --- 5. Portfolio Tracker Endpoints ---
-@app.route('/portfolio/add', methods=['POST'])
-def portfolio_add():
-    try:
-        symbol = request.form.get('symbol', '').upper()
-        shares = float(request.form.get('shares', 0))
-        buy_price = float(request.form.get('buy_price', 0))
-        date = request.form.get('date', '')
-
-        db = get_db()
-        db.execute('INSERT INTO portfolio (symbol, shares, buy_price, date) VALUES (?, ?, ?, ?)',
-                   (symbol, shares, buy_price, date))
-        db.commit()
-        return jsonify({'success': True})
-    except Exception:
-        return jsonify({'error': 'Failed to save transaction'}), 400
-
-@app.route('/portfolio/list', methods=['GET'])
-def portfolio_list():
-    db = get_db()
-    cursor = db.execute('SELECT * FROM portfolio ORDER BY id DESC')
-    rows = cursor.fetchall()
-    items = []
-    total_invested = 0
-    for r in rows:
-        cost = r['shares'] * r['buy_price']
-        total_invested += cost
-        items.append({
-            'id': r['id'],
-            'symbol': r['symbol'],
-            'shares': r['shares'],
-            'buy_price': r['buy_price'],
-            'total_cost': round(cost, 2),
-            'date': r['date']
-        })
-    return jsonify({'items': items, 'total_portfolio_cost': round(total_invested, 2)})
-
-@app.route('/portfolio/delete/<int:item_id>', methods=['POST'])
-def portfolio_delete(item_id):
-    db = get_db()
-    db.execute('DELETE FROM portfolio WHERE id = ?', (item_id,))
-    db.commit()
-    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(debug=True)

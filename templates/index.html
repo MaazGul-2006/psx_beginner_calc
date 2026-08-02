@@ -488,7 +488,7 @@
             event.currentTarget.classList.add('active');
 
             if (tabId === 'portfolio') {
-                fetchPortfolio();
+                renderPortfolio();
             }
         }
 
@@ -556,65 +556,76 @@
             }
         }
 
-        // Portfolio Management Functions
-        async function fetchPortfolio() {
-            try {
-                const response = await fetch('/portfolio/list');
-                const data = await response.json();
-                const tbody = document.getElementById('portfolio-list-body');
-                tbody.innerHTML = '';
+        // LocalStorage Portfolio Management
+        const PORTFOLIO_KEY = 'psx_user_portfolio';
 
-                if (data.items.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--subtext-color);">No holdings logged yet.</td></tr>`;
-                } else {
-                    data.items.forEach(item => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${item.symbol}</strong></td>
-                                <td>${item.shares}</td>
-                                <td>Rs. ${item.buy_price}</td>
-                                <td>Rs. ${item.total_cost}</td>
-                                <td>${item.date}</td>
-                                <td><button class="btn-delete" onclick="deletePortfolioItem(${item.id})">Remove</button></td>
-                            </tr>
-                        `;
-                    });
-                }
-                document.getElementById('portfolio-total-cost').textContent = `Rs. ${data.total_portfolio_cost}`;
-            } catch (err) {
-                console.error('Error fetching portfolio:', err);
-            }
+        function getStoredPortfolio() {
+            return JSON.parse(localStorage.getItem(PORTFOLIO_KEY)) || [];
         }
 
-        async function handlePortfolioAdd(event) {
+        function savePortfolio(data) {
+            localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(data));
+        }
+
+        function renderPortfolio() {
+            const items = getStoredPortfolio();
+            const tbody = document.getElementById('portfolio-list-body');
+            tbody.innerHTML = '';
+            
+            let totalInvested = 0;
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--subtext-color);">No holdings logged yet.</td></tr>`;
+            } else {
+                items.forEach((item, index) => {
+                    const cost = item.shares * item.buy_price;
+                    totalInvested += cost;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${item.symbol}</strong></td>
+                            <td>${item.shares}</td>
+                            <td>Rs. ${parseFloat(item.buy_price).toFixed(2)}</td>
+                            <td>Rs. ${cost.toFixed(2)}</td>
+                            <td>${item.date}</td>
+                            <td><button class="btn-delete" onclick="deletePortfolioItem(${index})">Remove</button></td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            document.getElementById('portfolio-total-cost').textContent = `Rs. ${totalInvested.toFixed(2)}`;
+        }
+
+        function handlePortfolioAdd(event) {
             event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
 
-            try {
-                const response = await fetch('/portfolio/add', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (response.ok) {
-                    form.reset();
-                    fetchPortfolio();
-                }
-            } catch (err) {
-                console.error('Error adding portfolio item:', err);
-            }
+            const newItem = {
+                symbol: formData.get('symbol').toUpperCase(),
+                shares: parseFloat(formData.get('shares')),
+                buy_price: parseFloat(formData.get('buy_price')),
+                date: formData.get('date')
+            };
+
+            const currentPortfolio = getStoredPortfolio();
+            currentPortfolio.unshift(newItem);
+            savePortfolio(currentPortfolio);
+
+            form.reset();
+            renderPortfolio();
         }
 
-        async function deletePortfolioItem(id) {
-            try {
-                const response = await fetch(`/portfolio/delete/${id}`, { method: 'POST' });
-                if (response.ok) {
-                    fetchPortfolio();
-                }
-            } catch (err) {
-                console.error('Error deleting portfolio item:', err);
-            }
+        function deletePortfolioItem(index) {
+            const currentPortfolio = getStoredPortfolio();
+            currentPortfolio.splice(index, 1);
+            savePortfolio(currentPortfolio);
+            renderPortfolio();
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPortfolio();
+        });
     </script>
 </body>
 </html>
