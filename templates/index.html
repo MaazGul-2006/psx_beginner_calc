@@ -19,6 +19,8 @@
             --result-text: #084298;
             --danger-color: #dc3545;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --ticker-bg: #111827;
+            --ticker-text: #f9fafb;
         }
 
         [data-theme="dark"] {
@@ -35,6 +37,8 @@
             --result-text: #8bb9fe;
             --danger-color: #f87171;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --ticker-bg: #000000;
+            --ticker-text: #ffffff;
         }
 
         * {
@@ -49,12 +53,49 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
-            padding: 30px 15px;
+            padding-bottom: 30px;
+        }
+
+        /* Live Stock Ticker Bar */
+        .ticker-wrap {
+            width: 100%;
+            background-color: var(--ticker-bg);
+            color: var(--ticker-text);
+            overflow: hidden;
+            height: 38px;
+            line-height: 38px;
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .ticker {
+            display: flex;
+            width: max-content;
+            animation: marquee 25s linear infinite;
+        }
+
+        .ticker:hover {
+            animation-play-state: paused;
+        }
+
+        .ticker-item {
+            padding: 0 24px;
+            font-weight: 500;
+        }
+
+        .up { color: #22c55e; }
+        .down { color: #ef4444; }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         .container {
             max-width: 680px;
             margin: 0 auto;
+            padding: 0 15px;
         }
 
         header {
@@ -190,6 +231,21 @@
             background-color: var(--primary-hover);
         }
 
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--result-bg);
+        }
+
         /* Results Box */
         .result-box {
             margin-top: 20px;
@@ -230,10 +286,17 @@
         }
 
         /* Portfolio Table Styles */
+        .portfolio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
         .portfolio-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 10px;
             font-size: 0.9rem;
         }
 
@@ -267,6 +330,25 @@
     </style>
 </head>
 <body>
+
+    <!-- PSX Ticker Banner -->
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker-item">SYS: Rs. 420.50 <span class="up">▲ +1.8%</span></div>
+            <div class="ticker-item">OGDC: Rs. 135.20 <span class="down">▼ -0.5%</span></div>
+            <div class="ticker-item">LUCK: Rs. 850.00 <span class="up">▲ +2.1%</span></div>
+            <div class="ticker-item">HUBC: Rs. 112.40 <span class="up">▲ +0.4%</span></div>
+            <div class="ticker-item">ENGRO: Rs. 310.10 <span class="down">▼ -1.2%</span></div>
+            <div class="ticker-item">TRG: Rs. 78.90 <span class="up">▲ +3.5%</span></div>
+            <!-- Duplicated items for seamless marquee looping -->
+            <div class="ticker-item">SYS: Rs. 420.50 <span class="up">▲ +1.8%</span></div>
+            <div class="ticker-item">OGDC: Rs. 135.20 <span class="down">▼ -0.5%</span></div>
+            <div class="ticker-item">LUCK: Rs. 850.00 <span class="up">▲ +2.1%</span></div>
+            <div class="ticker-item">HUBC: Rs. 112.40 <span class="up">▲ +0.4%</span></div>
+            <div class="ticker-item">ENGRO: Rs. 310.10 <span class="down">▼ -1.2%</span></div>
+            <div class="ticker-item">TRG: Rs. 78.90 <span class="up">▲ +3.5%</span></div>
+        </div>
+    </div>
 
     <div class="container">
         <header>
@@ -452,7 +534,10 @@
             </form>
 
             <div style="margin-top: 30px;">
-                <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Your Logged Holdings</h3>
+                <div class="portfolio-header">
+                    <h3 style="font-size: 1.1rem;">Your Logged Holdings</h3>
+                    <button type="button" class="btn-secondary" onclick="exportPortfolioCSV()">📥 Export CSV</button>
+                </div>
                 <div style="overflow-x: auto;">
                     <table class="portfolio-table">
                         <thead>
@@ -621,6 +706,30 @@
             currentPortfolio.splice(index, 1);
             savePortfolio(currentPortfolio);
             renderPortfolio();
+        }
+
+        // Export Portfolio to CSV
+        function exportPortfolioCSV() {
+            const items = getStoredPortfolio();
+            if (items.length === 0) {
+                alert('No portfolio data available to export.');
+                return;
+            }
+
+            let csvContent = 'data:text/csv;charset=utf-8,Symbol,Shares,Buy Price (PKR),Total Cost (PKR),Date\n';
+            
+            items.forEach(item => {
+                const totalCost = (item.shares * item.buy_price).toFixed(2);
+                csvContent += `${item.symbol},${item.shares},${item.buy_price},${totalCost},${item.date}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `PSX_Portfolio_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
