@@ -1,75 +1,73 @@
-# 📈 PSX Beginner Calculator
+# 📈 PSX Beginner Calculator & Portfolio Tracker
 
-A modern, responsive multi-tool web application designed for retail investors in the Pakistan Stock Exchange (PSX). Built with **Python/Flask** on the backend and a sleek, mobile-friendly **HTML5/CSS3/JavaScript** frontend supporting persistent Dark Mode.
+A lightweight web app tailored for retail investors on the **Pakistan Stock Exchange (PSX)**. Built with **Flask** and modern **Vanilla JavaScript**, it offers precision financial calculators with built-in brokerage fees, Sindh Sales Tax (SST), and FBR tax logic.
 
-🔗 **Live Demo:** [https://psx-beginner-calc.vercel.app](https://psx-beginner-calc.vercel.app) *(Replace with your actual Vercel URL)*
+🚀 **Live Demo:** [psx-beginner-calc.vercel.app](https://psx-beginner-calc.vercel.app/)
 
 ---
 
-## ✨ Features
+## Key Features
 
-1. **📊 Average Down Calculator:** Calculate your new average holding price and total investment when buying more shares at a different market price.
-2. **🎯 Break-Even Price Finder:** Determine the exact target sell price needed to break even after accounting for standard PSX brokerage commissions and Sindh Sales Tax (SST).
-3. **💰 Dividend & Yield Calculator:** Compute gross payouts, withholding tax breakdowns (Filer vs. Non-Filer), and net dividend yields based on current market prices.
-4. **⚖️ CGT & Net Profit Calculator:** Calculate capital gains tax (CGT), round-trip brokerage fees, and net realized take-home profit.
-5. **⚡ Modern UI & UX:** 
-   - Clean tabbed navigation interface.
-   - Asynchronous backend communication via Fetch API (no page reloads).
-   - Responsive design optimized for desktop and mobile devices.
-   - Persistent Light/Dark mode toggle.
+* **Live PSX Stock Ticker:** Real-time animated market bar displaying popular PSX symbols.
+* **Average Down Calculator:** Computes weighted average price and total exposure across multiple buying tranches.
+* **Break-Even Price Finder:** Factor in round-trip broker commissions (AKD, KTrade, Arif Habib, etc.) and 13% SST to find your exact zero-loss sell target.
+* **Dividend & Yield Engine:** Calculates gross yield and net payout after Filer (15%) or Non-Filer (30%) Withholding Tax (WHT).
+* **CGT & Realized Profit Calculator:** Computes net gains after applying tiered Capital Gains Tax (15% Filer / 25% Non-Filer) and brokerage costs.
+* **Portfolio Tracker with CSV Export:** Log stock purchases with zero-latency `localStorage` persistence and export your holdings to CSV anytime.
+* **Theme Switching:** Dark Mode / Light Mode with seamless theme persistence.
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Backend:** Python, Flask, Gunicorn
-* **Frontend:** HTML5, CSS3, Vanilla JavaScript, CSS Grid / Flexbox
-* **Deployment:** Vercel (Serverless)
+* **Backend:** Python / Flask
+* **Frontend:** HTML5, CSS3 (CSS Variables), JavaScript (ES6+ AJAX)
+* **Storage:** Browser `localStorage` (Serverless-compatible persistence)
+* **Deployment:** Vercel (Serverless Functions)
 
 ---
 
-## 🚀 Local Installation & Setup
+## 💻 Local Setup & Installation
 
-Follow these steps to run the project locally on your machine:
-
-1. **Clone the repository:**
+1. **Clone the Repository:**
    ```bash
    git clone [https://github.com/MaazGul-2006/psx_beginner_calc.git](https://github.com/MaazGul-2006/psx_beginner_calc.git)
    cd psx_beginner_calc
-   ```
 
-2. **Create and activate a virtual environment:**
-   ```Bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies:**
-   ```Bash
-    pip install -r requirements.txt  
-    ```
-
-4. **Run the Flask application:**
-   ```Bash
-   python app.py
-   ```
-
-5. Open your browser and navigate to http://127.0.0.1:5000. 
-
-## 📂 Project Structure
-   
-```Plaintext:
-psx_beginner_calc/
-│
-├── app.py                # Flask application backend routes and logic
-├── requirements.txt      # Python package dependencies
-├── Procfile              # Deployment configuration for production servers
-├── templates/
-│   └── index.html        # Frontend UI, CSS styles, and JavaScript client logic
-└── README.md             # Project documentation 
 ```
-## 👨‍💻 Author
 
-Developed by Muhammad Maaz Gul
+2. **Create a Virtual Environment & Install Dependencies:**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+pip install flask
 
-BS Data Science Student at FAST-NUCES
+```
+
+
+3. **Run the Application:**
+```bash
+python app.py
+
+```
+
+
+Open `http://127.0.0.1:5000` in your browser.
+
+---
+
+## 📊 Project Screenshots
+
+| Light Mode | Dark Mode |
+| --- | --- |
+| `screenshots/light.png` | `screenshots/dark.png` |
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
+
+```
+
+---
