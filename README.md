@@ -34,14 +34,12 @@ A lightweight web app tailored for retail investors on the **Pakistan Stock Exch
    git clone [https://github.com/MaazGul-2006/psx_beginner_calc.git](https://github.com/MaazGul-2006/psx_beginner_calc.git)
    cd psx_beginner_calc
 
-```
 
 2. **Create a Virtual Environment & Install Dependencies:**
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install flask
-
 ```
 
 
@@ -65,7 +63,6 @@ Open `http://127.0.0.1:5000` in your browser.
 ---
 
 ## 📄 License
-
 This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
 
 ```
