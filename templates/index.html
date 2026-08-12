@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="PSX Beginner Calculator & Portfolio Tracker">
+    <meta name="description" content="A specialized suite of investment calculators for the Pakistan Stock Exchange (PSX), featuring average down, break-even finder, dividend tax calculator, CGT profit engine, and portfolio tracking.">
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://psx-beginner-calc.vercel.app/">
+    <meta property="og:title" content="PSX Beginner Calculator & Portfolio Tracker">
+    <meta property="og:description" content="Calculate PSX brokerage fees, Capital Gains Tax (CGT), dividend yields, and track your stock holdings with client-side persistence.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/MaazGul-2006/psx_beginner_calc/main/screenshots/preview.png">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://psx-beginner-calc.vercel.app/">
+<meta property="twitter:title" content="PSX Beginner Calculator & Portfolio Tracker">
+<meta property="twitter:description" content="Calculate PSX brokerage fees, Capital Gains Tax (CGT), dividend yields, and track your stock holdings with client-side persistence.">
+<meta property="twitter:image" content="https://raw.githubusercontent.com/MaazGul-2006/psx_beginner_calc/main/screenshots/preview.png">
+    <title>PSX Beginner Calculator & Portfolio</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --subtext-color: #6c757d;
+            --border-color: #e9ecef;
+            --input-border: #ced4da;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --result-bg: #e7f1ff;
+            --result-border: #0d6efd;
+            --result-text: #084298;
+            --danger-color: #dc3545;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --ticker-bg: #111827;
+            --ticker-text: #f9fafb;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --subtext-color: #a0a0a0;
+            --border-color: #2d2d2d;
+            --input-border: #444444;
+            --primary-color: #3d8bfd;
+            --primary-hover: #0d6efd;
+            --result-bg: #1a2738;
+            --result-border: #3d8bfd;
+            --result-text: #8bb9fe;
+            --danger-color: #f87171;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --ticker-bg: #000000;
+            --ticker-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 30px;
+        }
+
+        /* Live Stock Ticker Bar */
+        .ticker-wrap {
+            width: 100%;
+            background-color: var(--ticker-bg);
+            color: var(--ticker-text);
+            overflow: hidden;
+            height: 38px;
+            line-height: 38px;
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .ticker {
+            display: flex;
+            width: max-content;
+            animation: marquee 25s linear infinite;
+        }
+
+        .ticker:hover {
+            animation-play-state: paused;
+        }
+
+        .ticker-item {
+            padding: 0 24px;
+            font-weight: 500;
+        }
+
+        .up { color: #22c55e; }
+        .down { color: #ef4444; }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+        }
+
+        header p {
+            color: var(--subtext-color);
+            font-size: 0.95rem;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 2px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--subtext-color);
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        /* Card Form */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .card.active {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 18px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+
+        .form-group input, 
+        .form-group select {
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+        }
+
+        button.btn-submit {
+            width: 100%;
+            padding: 11px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button.btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--result-bg);
+        }
+
+        /* Results Box */
+        .result-box {
+            margin-top: 20px;
+            background-color: var(--result-bg);
+            border-left: 4px solid var(--result-border);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .result-box.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .result-box h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--result-text);
+            margin-bottom: 10px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.92rem;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--result-text);
+            padding-top: 8px;
+        }
+
+        /* Portfolio Table Styles */
+        .portfolio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .portfolio-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .portfolio-table th, .portfolio-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .portfolio-table th {
+            color: var(--subtext-color);
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-delete:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PSX Ticker Banner -->
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker-item">SYS: Rs. 420.50 <span class="up">▲ +1.8%</span></div>
+            <div class="ticker-item">OGDC: Rs. 135.20 <span class="down">▼ -0.5%</span></div>
+            <div class="ticker-item">LUCK: Rs. 850.00 <span class="up">▲ +2.1%</span></div>
+            <div class="ticker-item">HUBC: Rs. 112.40 <span class="up">▲ +0.4%</span></div>
+            <div class="ticker-item">ENGRO: Rs. 310.10 <span class="down">▼ -1.2%</span></div>
+            <div class="ticker-item">TRG: Rs. 78.90 <span class="up">▲ +3.5%</span></div>
+            <!-- Duplicated items for seamless marquee looping -->
+            <div class="ticker-item">SYS: Rs. 420.50 <span class="up">▲ +1.8%</span></div>
+            <div class="ticker-item">OGDC: Rs. 135.20 <span class="down">▼ -0.5%</span></div>
+            <div class="ticker-item">LUCK: Rs. 850.00 <span class="up">▲ +2.1%</span></div>
+            <div class="ticker-item">HUBC: Rs. 112.40 <span class="up">▲ +0.4%</span></div>
+            <div class="ticker-item">ENGRO: Rs. 310.10 <span class="down">▼ -1.2%</span></div>
+            <div class="ticker-item">TRG: Rs. 78.90 <span class="up">▲ +3.5%</span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1>📈 PSX Beginner Calculator</h1>
+                <p>Smart tools & Portfolio tracking for Pakistan investors</p>
+            </div>
+            <button class="theme-btn" id="themeToggle">🌙 Dark Mode</button>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('avg-down', event)">Average Down</button>
+            <button class="tab-btn" onclick="switchTab('break-even', event)">Break-Even</button>
+            <button class="tab-btn" onclick="switchTab('dividend', event)">Dividend</button>
+            <button class="tab-btn" onclick="switchTab('cgt', event)">CGT & Profit</button>
+            <button class="tab-btn" onclick="switchTab('portfolio', event)">💼 Portfolio</button>
+        </div>
+
+        <!-- 1. Average Down Calculator -->
+        <div id="tab-avg-down" class="card active">
+            <h2>📊 Average Down Calculator</h2>
+            <form onsubmit="handleCalculate(event, '/average-down', 'res-avg-down')">
+                <div class="form-group">
+                    <label>1st Buy Shares</label>
+                    <input type="number" step="any" name="b1_shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>1st Buy Price (Rs)</label>
+                    <input type="number" step="any" name="b1_price" placeholder="e.g. 120" required>
+                </div>
+                <div class="form-group">
+                    <label>2nd Buy Shares</label>
+                    <input type="number" step="any" name="b2_shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>2nd Buy Price (Rs)</label>
+                    <input type="number" step="any" name="b2_price" placeholder="e.g. 100" required>
+                </div>
+                <button type="submit" class="btn-submit">Calculate Average</button>
+            </form>
+
+            <div id="res-avg-down" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Total Shares:</span> <span id="avg-total-shares">-</span></div>
+                <div class="result-row"><span>Total Investment:</span> <span id="avg-total-cost">-</span></div>
+                <div class="result-row"><span>New Avg Price:</span> <span id="avg-price">-</span></div>
+            </div>
+        </div>
+
+        <!-- 2. Break-Even Price Finder -->
+        <div id="tab-break-even" class="card">
+            <h2>🎯 Break-Even Price Finder</h2>
+            <form onsubmit="handleCalculate(event, '/break-even', 'res-break-even')">
+                <div class="form-group">
+                    <label>Brokerage Platform</label>
+                    <select name="broker">
+                        <option value="standard">Standard PSX (0.15%)</option>
+                        <option value="ktrade">KTrade Online (0.12%)</option>
+                        <option value="akd">AKD Securities (0.15%)</option>
+                        <option value="arifhabib">Arif Habib Ltd (0.10%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Buy Price (Rs)</label>
+                    <input type="number" step="any" name="buy_price" placeholder="e.g. 50" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity of Shares</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 1000" required>
+                </div>
+                <button type="submit" class="btn-submit">Find Break-Even</button>
+            </form>
+
+            <div id="res-break-even" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Total Invested (Inc. Fees):</span> <span id="be-total-invested">-</span></div>
+                <div class="result-row"><span>Round-Trip Fees:</span> <span id="be-total-fees">-</span></div>
+                <div class="result-row"><span>Target Sell Price:</span> <span id="be-price">-</span></div>
+            </div>
+        </div>
+
+        <!-- 3. Dividend & Yield Calculator -->
+        <div id="tab-dividend" class="card">
+            <h2>💰 Dividend & Yield Calculator</h2>
+            <form onsubmit="handleCalculate(event, '/dividend', 'res-dividend')">
+                <div class="form-group">
+                    <label>Shares Held</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 2000" required>
+                </div>
+                <div class="form-group">
+                    <label>Dividend Per Share (DPS in Rs)</label>
+                    <input type="number" step="any" name="dps" placeholder="e.g. 4.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Current Market Price (Rs)</label>
+                    <input type="number" step="any" name="market_price" placeholder="e.g. 45" required>
+                </div>
+                <div class="form-group">
+                    <label>Tax Status</label>
+                    <select name="tax_status">
+                        <option value="filer">Filer (15% WHT)</option>
+                        <option value="non_filer">Non-Filer (30% WHT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Calculate Dividend</button>
+            </form>
+
+            <div id="res-dividend" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Gross Dividend:</span> <span id="div-gross">-</span></div>
+                <div class="result-row"><span>Withholding Tax:</span> <span id="div-tax">-</span></div>
+                <div class="result-row"><span>Dividend Yield:</span> <span id="div-yield">-</span></div>
+                <div class="result-row"><span>Net Payout:</span> <span id="div-net">-</span></div>
+            </div>
+        </div>
+
+        <!-- 4. Capital Gains & Net Profit Calculator -->
+        <div id="tab-cgt" class="card">
+            <h2>⚖️ CGT & Net Profit Calculator</h2>
+            <form onsubmit="handleCalculate(event, '/cgt', 'res-cgt')">
+                <div class="form-group">
+                    <label>Brokerage Platform</label>
+                    <select name="broker">
+                        <option value="standard">Standard PSX (0.15%)</option>
+                        <option value="ktrade">KTrade Online (0.12%)</option>
+                        <option value="akd">AKD Securities (0.15%)</option>
+                        <option value="arifhabib">Arif Habib Ltd (0.10%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Buy Price (Rs)</label>
+                    <input type="number" step="any" name="buy_price" placeholder="e.g. 100" required>
+                </div>
+                <div class="form-group">
+                    <label>Sell Price (Rs)</label>
+                    <input type="number" step="any" name="sell_price" placeholder="e.g. 125" required>
+                </div>
+                <div class="form-group">
+                    <label>Number of Shares</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>Tax Status</label>
+                    <select name="tax_status">
+                        <option value="filer">Filer (15% CGT)</option>
+                        <option value="non_filer">Non-Filer (25% CGT)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Calculate Net Profit</button>
+            </form>
+
+            <div id="res-cgt" class="result-box">
+                <h4>Calculation Breakdown</h4>
+                <div class="result-row"><span>Gross Profit:</span> <span id="cgt-gross">-</span></div>
+                <div class="result-row"><span>Brokerage & SST:</span> <span id="cgt-fees">-</span></div>
+                <div class="result-row"><span>Capital Gains Tax:</span> <span id="cgt-tax">-</span></div>
+                <div class="result-row"><span>Net Realized Profit:</span> <span id="cgt-net">-</span></div>
+            </div>
+        </div>
+
+        <!-- 5. Portfolio Tracker Tab -->
+        <div id="tab-portfolio" class="card">
+            <h2>💼 Portfolio Transactions Tracker</h2>
+            <form onsubmit="handlePortfolioAdd(event)">
+                <div class="form-group">
+                    <label>Stock Symbol</label>
+                    <input type="text" name="symbol" placeholder="e.g. SYS, OGDC, LUCK" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>Quantity of Shares</label>
+                    <input type="number" step="any" name="shares" placeholder="e.g. 500" required>
+                </div>
+                <div class="form-group">
+                    <label>Buy Price (Rs)</label>
+                    <input type="number" step="any" name="buy_price" placeholder="e.g. 145.50" required>
+                </div>
+                <div class="form-group">
+                    <label>Purchase Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <button type="submit" class="btn-submit">Add to Portfolio</button>
+            </form>
+
+            <div style="margin-top: 30px;">
+                <div class="portfolio-header">
+                    <h3 style="font-size: 1.1rem;">Your Logged Holdings</h3>
+                    <button type="button" class="btn-secondary" onclick="exportPortfolioCSV()">📥 Export CSV</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Shares</th>
+                                <th>Buy Price</th>
+                                <th>Total Cost</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portfolio-list-body">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="result-box visible" style="margin-top: 15px;">
+                    <div class="result-row"><span>Total Portfolio Invested:</span> <span id="portfolio-total-cost">Rs. 0.00</span></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabId, event) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if (tabId === 'portfolio') {
+                renderPortfolio();
+            }
+        }
+
+        // Dark Mode Toggle Logic
+        const themeBtn = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('psx_theme') || 'light';
+        
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeBtn.textContent = '☀️ Light Mode';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.textContent = '🌙 Dark Mode';
+                localStorage.setItem('psx_theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️ Light Mode';
+                localStorage.setItem('psx_theme', 'dark');
+            }
+        });
+
+        // AJAX Calculator Form Handling
+        async function handleCalculate(event, endpoint, resultBoxId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                const data = await response.json();
+                
+                if (data.avg_result) {
+                    document.getElementById('avg-total-shares').textContent = data.avg_result.total_shares;
+                    document.getElementById('avg-total-cost').textContent = `Rs. ${data.avg_result.total_cost}`;
+                    document.getElementById('avg-price').textContent = `Rs. ${data.avg_result.avg_price}`;
+                } else if (data.breakeven_result) {
+                    document.getElementById('be-total-invested').textContent = `Rs. ${data.breakeven_result.total_invested}`;
+                    document.getElementById('be-total-fees').textContent = `Rs. ${data.breakeven_result.total_fees}`;
+                    document.getElementById('be-price').textContent = `Rs. ${data.breakeven_result.break_even_price}`;
+                } else if (data.div_result) {
+                    document.getElementById('div-gross').textContent = `Rs. ${data.div_result.gross_dividend}`;
+                    document.getElementById('div-tax').textContent = `Rs. ${data.div_result.tax_deducted}`;
+                    document.getElementById('div-yield').textContent = `${data.div_result.yield}%`;
+                    document.getElementById('div-net').textContent = `Rs. ${data.div_result.net_dividend}`;
+                } else if (data.cgt_result) {
+                    document.getElementById('cgt-gross').textContent = `Rs. ${data.cgt_result.gross_profit}`;
+                    document.getElementById('cgt-fees').textContent = `Rs. ${data.cgt_result.brokerage_fees}`;
+                    document.getElementById('cgt-tax').textContent = `Rs. ${data.cgt_result.cgt_tax}`;
+                    document.getElementById('cgt-net').textContent = `Rs. ${data.cgt_result.net_profit}`;
+                }
+
+                document.getElementById(resultBoxId).classList.add('visible');
+
+            } catch (err) {
+                console.error('Calculation Error:', err);
+            }
+        }
+
+        // LocalStorage Portfolio Management
+        const PORTFOLIO_KEY = 'psx_user_portfolio';
+
+        function getStoredPortfolio() {
+            return JSON.parse(localStorage.getItem(PORTFOLIO_KEY)) || [];
+        }
+
+        function savePortfolio(data) {
+            localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(data));
+        }
+
+        function renderPortfolio() {
+            const items = getStoredPortfolio();
+            const tbody = document.getElementById('portfolio-list-body');
+            tbody.innerHTML = '';
+            
+            let totalInvested = 0;
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--subtext-color);">No holdings logged yet.</td></tr>`;
+            } else {
+                items.forEach((item, index) => {
+                    const cost = item.shares * item.buy_price;
+                    totalInvested += cost;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${item.symbol}</strong></td>
+                            <td>${item.shares}</td>
+                            <td>Rs. ${parseFloat(item.buy_price).toFixed(2)}</td>
+                            <td>Rs. ${cost.toFixed(2)}</td>
+                            <td>${item.date}</td>
+                            <td><button class="btn-delete" onclick="deletePortfolioItem(${index})">Remove</button></td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            document.getElementById('portfolio-total-cost').textContent = `Rs. ${totalInvested.toFixed(2)}`;
+        }
+
+        function handlePortfolioAdd(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const newItem = {
+                symbol: formData.get('symbol').toUpperCase(),
+                shares: parseFloat(formData.get('shares')),
+                buy_price: parseFloat(formData.get('buy_price')),
+                date: formData.get('date')
+            };
+
+            const currentPortfolio = getStoredPortfolio();
+            currentPortfolio.unshift(newItem);
+            savePortfolio(currentPortfolio);
+
+            form.reset();
+            renderPortfolio();
+        }
+
+        function deletePortfolioItem(index) {
+            const currentPortfolio = getStoredPortfolio();
+            currentPortfolio.splice(index, 1);
+            savePortfolio(currentPortfolio);
+            renderPortfolio();
+        }
+
+        // Export Portfolio to CSV
+        function exportPortfolioCSV() {
+            const items = getStoredPortfolio();
+            if (items.length === 0) {
+                alert('No portfolio data available to export.');
+                return;
+            }
+
+            let csvContent = 'data:text/csv;charset=utf-8,Symbol,Shares,Buy Price (PKR),Total Cost (PKR),Date\n';
+            
+            items.forEach(item => {
+                const totalCost = (item.shares * item.buy_price).toFixed(2);
+                csvContent += `${item.symbol},${item.shares},${item.buy_price},${totalCost},${item.date}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `PSX_Portfolio_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPortfolio();
+        });
+    </script>
+</body>
+</html>
